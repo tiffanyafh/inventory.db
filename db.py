@@ -43,10 +43,10 @@ def retrieve_data(db_name, table_name):
 
 
 # Function to update data in a table
-def update_data(db_name, table_name, update_query):
+def update_data(db_name, table_name, update_query, values):
     con = sqlite3.connect(db_name)
     cur = con.cursor()
-    cur.execute(f"UPDATE {table_name} SET {update_query}")
+    cur.execute(f"UPDATE {table_name} SET {update_query}", values)
     con.commit()
     con.close()
 # update_query = "category = 'boob' WHERE jewel_id = 1"
@@ -81,7 +81,7 @@ def delete_database(db_name):
         print(f"The database file '{db_name}' does not exist.")
 
 
-print(retrieve_data('above.db', 'jewels'))
+# print(retrieve_data('above.db', 'jewels')) ---> to retrieve all data
 
 
 @app.route('/jewels', methods=['GET'])
@@ -91,10 +91,29 @@ def get_jewels():
 
 
 @app.route('/jewels', methods=['POST'])
-def add_jewel():
-    new_jewel = request.json
-    insert_data('above.db', 'jewels', tuple(new_jewel.values()))
+def post_jewel():
+    add_jewel = request.json
+    insert_data('above.db', 'jewels', tuple(add_jewel.values()))
     return jsonify({"message": "Jewel added successfully"}), 201
+
+
+@app.route('/jewels', methods=['PUT'])
+def put_jewel():
+    update_jewel = request.json
+    update_query = ("category = ?, name = ?, size = ?, color = ?, material = ?, "
+                    "quantity = ?, cost = ?, price = ? WHERE jewel_id = ?")
+    values = (update_jewel['category'], update_jewel['name'], update_jewel['size'],
+              update_jewel['color'], update_jewel['material'], update_jewel['quantity'],
+              update_jewel['cost'], update_jewel['price'], update_jewel['jewel_id'])
+    update_data('above.db', 'jewels', update_query, values)
+    return jsonify({"message": "Jewel was successfully updated"}), 201
+
+
+@app.route('/jewels/<jewel_id>', methods=['DELETE'])
+def delete_jewel(jewel_id):
+    delete_query = f"jewel_id = '{jewel_id}'"
+    delete_data('above.db', 'jewels', delete_query)
+    return jsonify({"message": "Jewel deleted successfully"}), 200
 
 
 if __name__ == '__main__':
