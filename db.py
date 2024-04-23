@@ -99,5 +99,7 @@ def add_jewel():
 
 if __name__ == '__main__':
     create_database(DB_NAME)
-    create_table(DB_NAME, 'jewels', 'name TEXT, category TEXT, price REAL')
+    create_table(DB_NAME, 'jewels', 'jewel_id text, category text, name text, '
+                                    'size text, color text, material text, quantity real, '
+                                    'cost real, price REAL')
     app.run(debug=True)
