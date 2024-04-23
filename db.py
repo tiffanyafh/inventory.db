@@ -42,6 +42,15 @@ def retrieve_data(db_name, table_name):
     return rows
 
 
+def retrieve_jewel(db_name, table_name, jewel_id):
+    con = sqlite3.connect(db_name)
+    cur = con.cursor()
+    cur.execute(f"SELECT * FROM {table_name} WHERE jewel_id = ?", (jewel_id,))
+    jewel = cur.fetchone()
+    con.close()
+    return jewel
+
+
 # Function to update data in a table
 def update_data(db_name, table_name, update_query, values):
     con = sqlite3.connect(db_name)
@@ -88,6 +97,16 @@ def delete_database(db_name):
 def get_jewels():
     jewels = retrieve_data('above.db','jewels')
     return jsonify(jewels)
+
+
+@app.route('/jewels/<jewel_id>', methods=['GET'])
+def get_jewel(jewel_id):
+    jewel = retrieve_jewel(DB_NAME, 'jewels', jewel_id)
+
+    if jewel:
+        return jsonify(jewel), 200
+    else:
+        return jsonify({"error": "Jewel not found"}), 404
 
 
 @app.route('/jewels', methods=['POST'])
